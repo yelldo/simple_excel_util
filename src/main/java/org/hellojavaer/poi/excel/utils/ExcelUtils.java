@@ -723,11 +723,11 @@ public class ExcelUtils {
         if (row == null) {
             row = sheet.createRow(headRowIndex);
         }
-        int columnSize = 0;
+        //int columnSize = 0;
         for (Map.Entry<String, Map<Integer, ExcelWriteFieldMappingAttribute>> entry : sheetProcessor.getFieldMapping().export().entrySet()) {
             Map<Integer, ExcelWriteFieldMappingAttribute> map = entry.getValue();
             if (map != null) {
-                columnSize++;
+                //columnSize++;
                 for (Map.Entry<Integer, ExcelWriteFieldMappingAttribute> entry2 : map.entrySet()) {
                     String head = entry2.getValue().getHead();
                     Integer colIndex = entry2.getKey();
@@ -744,7 +744,7 @@ public class ExcelUtils {
                 }
             }
         }
-        sheet.autoSizeColumn(columnSize);
+        //sheet.autoSizeColumn(columnSize);
     }
 
     private static void write(boolean useTemplate, Workbook workbook, OutputStream outputStream,
