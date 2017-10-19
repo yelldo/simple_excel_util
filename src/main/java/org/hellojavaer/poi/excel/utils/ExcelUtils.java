@@ -727,6 +727,7 @@ public class ExcelUtils {
         for (Map.Entry<String, Map<Integer, ExcelWriteFieldMappingAttribute>> entry : sheetProcessor.getFieldMapping().export().entrySet()) {
             Map<Integer, ExcelWriteFieldMappingAttribute> map = entry.getValue();
             if (map != null) {
+                //sheet.autoSizeColumn(columnSize,true);
                 //columnSize++;
                 for (Map.Entry<Integer, ExcelWriteFieldMappingAttribute> entry2 : map.entrySet()) {
                     String head = entry2.getValue().getHead();
@@ -744,7 +745,6 @@ public class ExcelUtils {
                 }
             }
         }
-        //sheet.autoSizeColumn(columnSize);
     }
 
     private static void write(boolean useTemplate, Workbook workbook, OutputStream outputStream,

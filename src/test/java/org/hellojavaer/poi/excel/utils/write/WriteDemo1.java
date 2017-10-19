@@ -68,7 +68,7 @@ public class WriteDemo1 {
         sheetProcessor.setStartRowIndex(1);//
         sheetProcessor.setFieldMapping(fieldMapping);// required
         sheetProcessor.setHeadRowIndex(0);
-        sheetProcessor.setTheme(0);
+        //sheetProcessor.setTheme(0);
         // sheetProcessor.setTemplateRowIndex(1);
         sheetProcessor.setDataList(getDateList());
 
