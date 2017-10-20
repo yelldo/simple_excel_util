@@ -10,9 +10,7 @@ import java.io.File;
 import java.io.FileOutputStream;
 import java.io.IOException;
 import java.net.URL;
-import java.util.ArrayList;
-import java.util.Date;
-import java.util.List;
+import java.util.*;
 
 /**
  * Created by tianhc on 2017/10/20.
@@ -25,7 +23,7 @@ public class Demo1 {
 
         //文件输出路径
         URL url = Demo1.class.getResource("/");
-        final String outputFilePath = url.getPath() + "demo_output1.xlsx";
+        final String outputFilePath = url.getPath() + "demo_output2.xlsx";
         File outputFile = new File(outputFilePath);
         FileOutputStream output = new FileOutputStream(outputFile);
 
@@ -47,7 +45,8 @@ public class Demo1 {
         sheetProcessor.setHeadRowIndex(0);
         //sheetProcessor.setTheme(0);
         // sheetProcessor.setTemplateRowIndex(1);
-        sheetProcessor.setDataList(getDateList());
+        //sheetProcessor.setDataList(getDateList());
+        sheetProcessor.setDataList(getDateList2());
 
         ExcelWriteUtil.write(output,sheetProcessor);
 
@@ -71,6 +70,24 @@ public class Demo1 {
         list.add(bean);
         list.add(bean);
         list.add(bean);
+        return list;
+    }
+
+    private static List<Map<String, Object>> getDateList2() {
+        List<Map<String, Object>> list = new ArrayList<>();
+        Map<String, Object> data = new HashMap<>();
+        data.put("shortField", (short) 2);
+        data.put("intField", 3);
+        data.put("longField", 4L);
+        data.put("floatField", 5.1f);
+        data.put("doubleField", 6.23d);
+        data.put("boolField", true);
+        data.put("stringField", "yelldo");
+        data.put("dateField", new Date());
+
+        list.add(data);
+        list.add(data);
+
         return list;
     }
 }

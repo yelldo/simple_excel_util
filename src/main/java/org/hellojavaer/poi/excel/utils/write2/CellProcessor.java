@@ -1,9 +1,10 @@
 package org.hellojavaer.poi.excel.utils.write2;
 
 import lombok.Data;
+import org.apache.poi.hssf.usermodel.HSSFDateUtil;
+import org.apache.poi.ss.format.CellDateFormatter;
 import org.apache.poi.ss.usermodel.*;
 
-import java.util.Calendar;
 import java.util.Date;
 
 /**
@@ -33,7 +34,6 @@ public class CellProcessor extends WriteProcessor {
     }
 
     private void writeContent() {
-        System.out.println("CellProcessor,writeContent...");
         if (cellValue == null) {
             cell.setCellValue((String) null);
             return;
@@ -53,49 +53,33 @@ public class CellProcessor extends WriteProcessor {
         } else if (cellValue instanceof Double) {
             Double temp = (Double) cellValue;
             cell.setCellValue((double) temp.doubleValue());
-        } else if (cellValue instanceof Date) {// Date
+        } else if (cellValue instanceof Date) {
             Date dateVal = (Date) cellValue;
-            long time = dateVal.getTime();
-            // read is based on 1899/12/31 but DateUtil.getExcelDate is base on
-            // 1900/01/01
-            if (time >= TIME_1899_12_31_00_00_00_000 && time < TIME_1900_01_01_00_00_00_000) {
-                Date incOneDay = new Date(time + 24 * 60 * 60 * 1000);
-                double d = DateUtil.getExcelDate(incOneDay);
-                cell.setCellValue(d - 1);
+            cell.setCellValue(dateVal);
+            Workbook wb = cell.getRow().getSheet().getWorkbook();
+            CellStyle cellStyle = cell.getCellStyle();
+            DataFormat dataFormat = wb.getCreationHelper().createDataFormat();
+
+            cellStyle.setDataFormat(dataFormat.getFormat("yyyy/MM/dd HH:mm:ss"));
+            cell.setCellStyle(cellStyle);
+
+            //日期格式转换
+            String value = "";
+            //if (DateUtil.isCellDateFormatted(cell)) {
+            double val = cell.getNumericCellValue();
+            Date date = HSSFDateUtil.getJavaDate(val);
+            String dateFmt = null;
+
+            if (cell.getCellStyle().getDataFormat() == 14) {
+                dateFmt = "dd/mm/yyyy";
+                value = new CellDateFormatter(dateFmt).format(date);
             } else {
-                Workbook wb = cell.getRow().getSheet().getWorkbook();
-                CellStyle cellStyle = cell.getCellStyle();
-                if (cellStyle == null) {
-                    cellStyle = wb.createCellStyle();
-                }
-                DataFormat dataFormat = wb.getCreationHelper().createDataFormat();
-                // @see #BuiltinFormats
-                // 0xe, "m/d/yy"
-                // 0x14 "h:mm"
-                // 0x16 "m/d/yy h:mm"
-                // {@linke https://en.wikipedia.org/wiki/Year_10,000_problem}
-                /** [1899/12/31 00:00:00:000~1900/01/01 00:00:000) */
-                if (time >= TIME_1899_12_31_00_00_00_000 && time < TIME_1900_01_02_00_00_00_000) {
-                    cellStyle.setDataFormat(dataFormat.getFormat("h:mm"));
-                    // cellStyle.setDataFormat(dataFormat.getFormat("m/d/yy h:mm"));
-                } else {
-                    // if ( time % (24 * 60 * 60 * 1000) == 0) {//for time
-                    // zone,we can't use this way.
-                    Calendar calendar = Calendar.getInstance();
-                    calendar.setTime(dateVal);
-                    int hour = calendar.get(Calendar.HOUR_OF_DAY);
-                    int minute = calendar.get(Calendar.MINUTE);
-                    int second = calendar.get(Calendar.SECOND);
-                    int millisecond = calendar.get(Calendar.MILLISECOND);
-                    if (millisecond == 0 && second == 0 && minute == 0 && hour == 0) {
-                        cellStyle.setDataFormat(dataFormat.getFormat("m/d/yy"));
-                    } else {
-                        cellStyle.setDataFormat(dataFormat.getFormat("m/d/yy h:mm"));
-                    }
-                }
-                cell.setCellStyle(cellStyle);
-                cell.setCellValue(dateVal);
+                DataFormatter fmt = new DataFormatter();
+                String valueAsInExcel = fmt.formatCellValue(cell);
+                value = valueAsInExcel;
             }
+            //}
+            cell.setCellValue(value);
         } else if (cellValue instanceof Boolean) {
             cell.setCellValue(((Boolean) cellValue).booleanValue());
         } else { // String

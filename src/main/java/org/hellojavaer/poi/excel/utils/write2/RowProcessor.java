@@ -37,7 +37,6 @@ public class RowProcessor extends WriteProcessor {
     }
 
     public void writeContent(WriteContext context){
-        System.out.println("RowProcessor,writeContent...");
         WriteFieldMapping fieldMapping = sheetProcessor.getFieldMapping();
         for (Map.Entry<String, Map<Integer, WriteFieldMapping.ValueAttribute>> entry : fieldMapping.export().entrySet()) {
             String fieldName = entry.getKey();
