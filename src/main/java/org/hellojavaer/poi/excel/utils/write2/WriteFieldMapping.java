@@ -17,7 +17,7 @@ public class WriteFieldMapping {
 
     Map<String, Map<Integer, ValueAttribute>> fieldMapping = new LinkedHashMap<>();
 
-    public ValueAttribute put(String fieldName){
+    public ValueAttribute put(Integer colIndex, String fieldName){
         Assert.notNull(fieldName);
         Map<Integer, ValueAttribute> map = fieldMapping.get(fieldName);
         if (map == null) {
@@ -25,8 +25,8 @@ public class WriteFieldMapping {
             fieldMapping.put(fieldName, map);
         }
         ValueAttribute attribute = new ValueAttribute();
-        //map.put()
-        return null;
+        map.put(colIndex, attribute);
+        return attribute;
     }
 
     /**
@@ -36,19 +36,19 @@ public class WriteFieldMapping {
     @Data
     public class ValueAttribute{
 
-        private CellProcessor cellProcessor;
-        private CellValueMapping valueMapping;
+        //private CellProcessor cellProcessor;
+        //private CellValueMapping valueMapping;
         private String head;
 
-        public ValueAttribute setCellProcessor(CellProcessor cellProcessor) {
-            this.cellProcessor = cellProcessor;;
-            return this;
-        }
+        //public ValueAttribute setCellProcessor(CellProcessor cellProcessor) {
+            //this.cellProcessor = cellProcessor;;
+            //return this;
+        //}
 
-        public ValueAttribute setValueMapping(CellValueMapping valueMapping) {
-            this.valueMapping = valueMapping;
-            return this;
-        }
+        //public ValueAttribute setValueMapping(CellValueMapping valueMapping) {
+            //this.valueMapping = valueMapping;
+            //return this;
+        //}
 
         public ValueAttribute setHead(String head) {
             this.head = head;

@@ -5,9 +5,6 @@ import org.apache.poi.ss.usermodel.Cell;
 import org.apache.poi.ss.usermodel.Row;
 import org.apache.poi.ss.usermodel.Sheet;
 
-import java.util.ArrayList;
-import java.util.List;
-
 /**
  * Created by luzy on 2017/10/17.
  */
@@ -25,20 +22,4 @@ public class WriteContext {
     private Integer                curColIndex;
     private String                 curColStrIndex;
 
-    private List<SheetProcessor>  sheetProcessors;
-
-    public void addSheetProcessor(int sheetIndex, SheetProcessor sheetProcessor) {
-        if (this.sheetProcessors == null) {
-            sheetProcessors = new ArrayList<>();
-        }
-        sheetProcessors.add(sheetIndex, sheetProcessor);
-    }
-
-    public SheetProcessor getCurSheetProcessor() {
-        return sheetProcessors.get(curSheetIndex);
-    }
-
-    /*public void write(OutputStream output){
-
-    }*/
 }

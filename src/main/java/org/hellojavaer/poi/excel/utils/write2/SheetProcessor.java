@@ -1,7 +1,6 @@
 package org.hellojavaer.poi.excel.utils.write2;
 
 import lombok.Data;
-import org.apache.poi.ss.formula.functions.T;
 import org.apache.poi.ss.usermodel.Cell;
 import org.apache.poi.ss.usermodel.Row;
 import org.apache.poi.ss.usermodel.Sheet;
@@ -15,62 +14,54 @@ import java.util.Map;
  * Created by luzy on 2017/10/17.
  */
 @Data
-public class SheetProcessor extends WriteProcessor {
+public class SheetProcessor<T> extends WriteProcessor {
 
+    private RowProcessor                 rowProcessor;
     private Sheet                          sheet;
     private Integer                       sheetIndex;
     private String                        sheetName;
-    private int                            startRowIndex = 0;
-    private Integer                       templateStartRowIndex;
-    private Integer                       templateEndRowIndex;
+    private int                           startRowIndex = 0;
+    //private Integer                       templateStartRowIndex;
+    //private Integer                       templateEndRowIndex;
     private Integer                       headRowIndex;
-    private Integer                       theme;
+    //private Integer                       theme;
     private WriteFieldMapping            fieldMapping;
     private List<T>                        dataList;
     //private boolean                       trimSpace     = false;
 
-    public SheetProcessor setSheet(Sheet sheet){
-        this.sheet = sheet;
-        return this;
-    }
-
     @Override
-    public void process(WriteProcessor rowProcessor) {
-        this.writeProcessor = rowProcessor;
-        writeHead();
-        writeContent();
+    public void process(WriteContext context) {
+        this.sheet = context.getCurSheet();
+        writeHead(context);
+        writeContent(context);
     }
 
-    public void writeContent(){
+    public void writeContent(WriteContext context){
+        System.out.println("SheetProcessor,writeContent...");
         int writeRowIndex = startRowIndex;
         for (Object rowData : dataList) {
             if(rowData == null) continue;
+
             Row row = sheet.getRow(writeRowIndex);
             if(row == null) row = sheet.createRow(writeRowIndex);
 
-            writeContext.setCurRow(row);
-            writeContext.setCurRowIndex(writeRowIndex);
-            writeContext.setCurCell(null);
-            writeContext.setCurColIndex(null);
+            context.setCurRow(row);
+            context.setCurRowIndex(writeRowIndex);
+            context.setCurCell(null);
+            context.setCurColIndex(null);
 
-            if (this.writeProcessor == null) continue; // exception
-
-            CellProcessor cellProcessor = null;
-            RowProcessor rowProcessor = (RowProcessor) writeProcessor;
-            WriteProcessor processor = rowProcessor.getWriteProcessor();
-            if (processor != null && processor instanceof CellProcessor) {
-                cellProcessor = (CellProcessor) writeProcessor;
-            }else{
-                cellProcessor = new CellProcessor();
-            }
-            rowProcessor.process(cellProcessor);
+            rowProcessor.setSheetProcessor(this);
+            rowProcessor.setCellProcessor(new CellProcessor());
+            rowProcessor.setRow(row);
+            rowProcessor.setRowData(rowData);
+            rowProcessor.process(context);
             writeRowIndex++;
 
             // 未完待续 。。。
         }
     }
 
-    public void writeHead(){
+    public void writeHead(WriteContext context){
         if(headRowIndex == null) return; // or exception
         Row row = sheet.getRow(headRowIndex);
         if (row == null) {

@@ -4,11 +4,12 @@ import org.apache.poi.ss.usermodel.Sheet;
 import org.apache.poi.ss.usermodel.Workbook;
 import org.apache.poi.xssf.usermodel.XSSFWorkbook;
 
+import java.io.IOException;
 import java.io.OutputStream;
 
 /**
  * 大致初步的用法：
- * WriteFieldMapping fieldMapping = new WriteFieldMapping();
+ * ExcelWriteFieldMapping fieldMapping = new ExcelWriteFieldMapping();
  * fieldMapping.put(fieldName).setHead(str);  //
  * ...
  * <p>
@@ -27,41 +28,39 @@ import java.io.OutputStream;
  */
 public class ExcelWriteUtil {
 
-    public static void write(OutputStream output, SheetProcessor sheetProcessor) {
+
+    public static void write(OutputStream output, SheetProcessor... sheetProcessors) {
         Workbook workbook = new XSSFWorkbook();
-        Integer sheetIndex = sheetProcessor.getSheetIndex();
-        Sheet sheet = workbook.getSheetAt(sheetIndex);
-        if (sheet == null) return; // or exception
-        WriteContext context = new WriteContext();
-        context.setCurSheet(sheet);
-        context.setCurSheetIndex(sheetIndex);
-        context.setCurSheetName(sheet.getSheetName());
-        context.setCurRow(null);
-        context.setCurRowIndex(null);
-        context.setCurCell(null);
-        context.setCurColIndex(null);
-        sheetProcessor.setWriteContext(context);
+        for (SheetProcessor sheetProcessor : sheetProcessors) {
 
-        // sheet process
-        /*sheetProcessor.setSheet(sheet).process(new RowProcessor() {
-            @Override
-            void process(WriteProcessor processor, WriteContext context) {
-                // to do something
+            String sheetName = sheetProcessor.getSheetName();
+            Integer sheetIndex = sheetProcessor.getSheetIndex();
+            Sheet sheet = null;
+            if (sheetName != null) {
+
+            } else if (sheetIndex != null) {
+                sheet = workbook.createSheet();
+                workbook.setSheetOrder(sheet.getSheetName(), sheetIndex);
             }
-        }, context, workbook);*/
-        RowProcessor rowProcessor = null;
-        WriteProcessor writeProcessor = sheetProcessor.getWriteProcessor();
-        if (writeProcessor != null && writeProcessor instanceof RowProcessor) {
-            rowProcessor = (RowProcessor) writeProcessor;
-        } else {
-            rowProcessor = new RowProcessor();
+            if (sheet == null) return; // or exception
+
+            WriteContext context = new WriteContext();
+            context.setCurSheet(sheet);
+            context.setCurSheetIndex(sheetIndex);
+            context.setCurSheetName(sheet.getSheetName());
+            context.setCurRow(null);
+            context.setCurRowIndex(null);
+            context.setCurCell(null);
+            context.setCurColIndex(null);
+
+            sheetProcessor.setRowProcessor(new RowProcessor());
+            sheetProcessor.process(context);
         }
-        sheetProcessor.setSheet(sheet).process(rowProcessor);
 
-
-    }
-
-    public static void write2(OutputStream output, WriteContext context) {
-        // use this method finally !!!
+        try {
+            workbook.write(output);
+        } catch (IOException e) {
+            e.printStackTrace();
+        }
     }
 }

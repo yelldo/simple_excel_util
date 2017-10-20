@@ -16,6 +16,8 @@ import java.util.Map;
 @Data
 public class RowProcessor extends WriteProcessor {
 
+    private SheetProcessor sheetProcessor;
+    private CellProcessor cellProcessor;
     private Row row;
     private Object rowData;
 
@@ -30,13 +32,13 @@ public class RowProcessor extends WriteProcessor {
     }
 
     @Override
-    void process(WriteProcessor processor) {
-        this.writeProcessor = processor;
-        writeContent();
+    void process(WriteContext context) {
+        writeContent(context);
     }
 
-    public void writeContent(){
-        WriteFieldMapping fieldMapping = writeContext.getCurSheetProcessor().getFieldMapping();
+    public void writeContent(WriteContext context){
+        System.out.println("RowProcessor,writeContent...");
+        WriteFieldMapping fieldMapping = sheetProcessor.getFieldMapping();
         for (Map.Entry<String, Map<Integer, WriteFieldMapping.ValueAttribute>> entry : fieldMapping.export().entrySet()) {
             String fieldName = entry.getKey();
             Map<Integer, WriteFieldMapping.ValueAttribute> map = entry.getValue();
@@ -54,25 +56,14 @@ public class RowProcessor extends WriteProcessor {
                 if (cell == null) {
                     cell = row.createCell(colIndex);
                 }
-                writeContext.setCurColIndex(colIndex);
-                writeContext.setCurCell(cell);
+                context.setCurColIndex(colIndex);
+                context.setCurCell(cell);
 
-                if (writeProcessor != null && writeProcessor instanceof CellProcessor) {
-                    CellProcessor cellProcessor = (CellProcessor) writeProcessor;
-                    cellProcessor.setCell(cell).process(cellProcessor);
-                }else{
-                    // exception
-                }
-
-
-
-
-
+                cellProcessor.setCell(cell);
+                cellProcessor.setCellValue(val);
+                cellProcessor.process(context);
             }
         }
-
-
-
     }
 
     private static Object getFieldValue(Object obj, String fieldName, boolean isTrimSpace) {
